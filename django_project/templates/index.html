@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block scripts %}
+<script>
+
+    function short_and_copy() {
+        $.ajax({
+            type: 'POST',
+            url: server_url + "links/",
+            data: {
+                url: $('#id_url').val(),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+            },
+            success: function (json) {
+                console.log(json);
+                $('#id_copy').val(server_url + json.link);
+                let copyText = document.getElementById("id_copy");
+                console.log(copyText);
+                copyText.select();
+                document.execCommand("copy");
+                sendNotification('Success', {
+                    body: 'Your link copied to your clipboard',
+                    dir: 'auto'
+                });
+            },
+            error: function (xhr, errmsg, err) {
+                sendNotification('Error', {
+                    body: 'Your url is not correct',
+                    dir: 'auto'
+                });
+            }
+        });
+    }
+</script>
+{% endblock %}
+{% block content %}
+    <div class="row" style="margin-left: 25%; margin-top: 20%;">
+        <div class="column column-50">
+            <h3>Write any link you want to short!</h3>
+        </div>
+    </div>
+    <fieldset>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="row" style="margin-left: 25%;">
+                <div class="column column-50">
+                    {{ field.errors }}
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </fieldset>
+    <div class="row" style="margin-left: 25%; padding-top: 10px;">
+        <div class="column column-50">
+            <button class="button button-outline" onclick="short_and_copy()" style=" width: 100%;">Short
+            </button>
+            <input style='position: absolute; left: -1000px;top: -1000px;' id="id_copy" type="text" value="">
+        </div>
+    </div>
+{% endblock %}

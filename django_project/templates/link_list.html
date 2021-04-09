@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load mathfilters %}
+{% block scripts %}
+    <script>
+        function delete_link(element, short_link) {
+            console.log(get_cookie('csrftoken'));
+            $.ajax({
+                type: 'DELETE',
+                url: server_url + "links/" + short_link + "/",
+                headers: {"X-CSRFToken": get_cookie('csrftoken')},
+                success: function () {
+                    element.parentElement.parentElement.remove();
+                },
+                error: function (xhr, errmsg, err) {
+                    sendNotification('Error', {
+                    body: "You can not delete this link.",
+                    dir: 'auto'
+                });
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="column column-20">Short url.</div>
+        <div class="column column-60">Origin url.</div>
+        <div class="column column-20">Views.</div>
+    </div>
+    {# TODO style improvement #}
+    {% for link in object_list %}
+        {% if forloop.counter|mod:2 == 1 %}
+            <div class="row" style="background-color: gainsboro">
+        {% else %}
+            <div class="row" style="background-color: whitesmoke">
+        {% endif %}
+    <div class="column column-20"><a class="button button-clear" href="/{{ link.short_link }}">{{ link.short_link }}</a>
+    </div>
+    <div class="column column-60">{{ link.origin_url }}</div>
+    <div class="column column-10">{{ link.views }}</div>
+    <div class="column column-10"><a class="button button-outline" href="#"
+                                     onclick="delete_link(this, '{{ link.short_link }}')">{{ link.short_link }}</a>
+    </div>
+    </div>
+    {% empty %}
+        <li>No links yet.</li>
+    {% endfor %}
+    </div>
+{% endblock %}
