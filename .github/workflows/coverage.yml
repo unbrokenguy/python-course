@@ -1,0 +1,36 @@
+name: coverage
+
+on: [push]
+
+jobs:
+  run-linters:
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Install Python dependencies
+        run: |
+          cd src
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry export -f requirements.txt --output requirements.txt
+          pip install -r requirements.txt
+      - name: Coverage
+        env:
+          SECRET_KEY: ${{secrets.SECRET_KEY}}
+        run: |
+          cd src
+          coverage run -m pytest
+          cp .coverage ../
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@master
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          fail_ci_if_error: true

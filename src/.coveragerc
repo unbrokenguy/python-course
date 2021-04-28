@@ -1,0 +1,38 @@
+[run]
+branch = True
+source = .
+omit =
+    *__init__*
+    manage.py
+    templates/
+    static/
+    core/asgi.py
+    core/wsgi.py
+    */apps.py
+
+[report]
+omit =
+    *__init__*
+    manage.py
+    templates/
+    static/
+    core/asgi.py
+    core/wsgi.py
+    */apps.py
+exclude_lines =
+    pragma: no cover
+
+    def __repr__
+    if self\.debug
+
+    raise AssertionError
+    raise NotImplementedError
+
+    if 0:
+    if __name__ == .__main__.:
+
+
+ignore_errors = True
+skip_covered = True
+skip_empty = True
+show_missing = True

@@ -3,5 +3,6 @@
 __pycache__/
 *.py[cod]
 **/ __pycache__
-.python-version
+*.python-version
 **/venv
+*.coverage
