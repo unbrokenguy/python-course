@@ -1,5 +1,4 @@
 import pytest
-from core.tests.testconf import client
 from django.urls import reverse
 from django.utils.crypto import get_random_string
 
@@ -11,6 +10,7 @@ bad_passwords = [
     "qwertyuiop",
     "same_as_email",
 ]
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("password", bad_passwords)
@@ -43,7 +43,7 @@ def test_sign_up_success(client):
         },
     )
     assert response.status_code == 302
-    assert response['Location'] == reverse('root')
+    assert response["Location"] == reverse("root")
 
 
 @pytest.mark.django_db

@@ -1,5 +1,4 @@
 import pytest
-from core.tests.testconf import client
 from django.urls import reverse
 from django.utils.crypto import get_random_string
 from core.tests.user_factory import UserFactory
@@ -23,7 +22,7 @@ def test_sign_in_post_and_get_with_auth_user(client):
     user.save()
     response = client.post("/auth/sign_in/", {"email": user.email, "password": password})
     assert response.status_code == 302
-    assert response['Location'] == reverse('root')
+    assert response["Location"] == reverse("root")
     response = client.get("/auth/sign_in/")
     assert response.status_code == 302
-    assert response['Location'] == reverse('root')
+    assert response["Location"] == reverse("root")

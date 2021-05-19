@@ -17,4 +17,4 @@ class RegisterForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
-        self.fields['password'].widget = forms.PasswordInput()
+        self.fields["password"].widget = forms.PasswordInput()
