@@ -2,7 +2,6 @@
 branch = True
 source = .
 omit =
-    *__init__*
     manage.py
     templates/
     static/
@@ -12,13 +11,13 @@ omit =
 
 [report]
 omit =
-    *__init__*
     manage.py
     templates/
     static/
     core/asgi.py
     core/wsgi.py
     */apps.py
+
 exclude_lines =
     pragma: no cover
 

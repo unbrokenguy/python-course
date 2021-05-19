@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Title{% endblock %}
+{% block content %}
+    <div class="container">
+        <form action="{% url 'authentication:signIn' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Sign in">
+        </form>
+        {% for error in errors %}
+            <p style="color:red;">{{ error }}</p>
+        {% endfor %}
+    </div>
+{% endblock %}

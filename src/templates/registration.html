@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Title{% endblock %}
+{% block content %}
+    <div class="container">
+        <form id="register-form" name="register-form" action="{% url 'authentication:signUp' %}" method="post"
+              enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="{{ form.email.id_for_label }}">Email Address:</label>
+            {{ form.email }}
+
+            <label for="{{ form.first_name.id_for_label }}">First name:</label>
+            {{ form.first_name }}
+
+            <label for="{{ form.last_name.id_for_label }}">Last Name:</label>
+            {{ form.last_name }}
+
+            <label for="{{ form.password.id_for_label }}">Password:</label>
+            {{ form.password }}
+
+
+            <label for="{{ form.confirm_password.id_for_label }}">Re-enter Password:</label>
+            {{ form.confirm_password }}
+
+
+            <button id="submit" value="register">Sign Up Now
+            </button>
+            <a href="{% url 'authentication:signIn' %}">Login</a></form>
+        {% for error in errors %}
+            {% for msg in error %}
+                <p style="color:red;">{{ msg }}</p>
+            {% endfor %}
+        {% endfor %}
+
+    </div>
+{% endblock %}

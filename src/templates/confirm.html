@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm{% endblock %}
+
+{% block content %}
+{% if success %}
+    <h2>Your account confirm successful</h2>
+{% else %}
+    <h2>Wrong confirmation code</h2>
+{% endif %}
+{% endblock %}
