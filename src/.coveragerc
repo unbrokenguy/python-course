@@ -8,15 +8,9 @@ omit =
     core/asgi.py
     core/wsgi.py
     */apps.py
+    */tests/*
 
 [report]
-omit =
-    manage.py
-    templates/
-    static/
-    core/asgi.py
-    core/wsgi.py
-    */apps.py
 
 exclude_lines =
     pragma: no cover

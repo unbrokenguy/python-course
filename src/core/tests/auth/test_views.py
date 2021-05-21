@@ -1,10 +1,20 @@
 import pytest
 from django.urls import reverse
 from django.utils.crypto import get_random_string
+
 from core.tests.user_factory import UserFactory
 
 
-def test_login_view(client):
+@pytest.mark.django_db
+def test_sign_up_view(client):
+    get = client.get("/auth/sign_up/")
+    delete = client.delete("/auth/sign_up/")
+    assert delete.status_code == 405
+    assert get.status_code == 200
+
+
+@pytest.mark.django_db
+def test_sign_in_view(client):
     get = client.get("/auth/sign_in/")
     post = client.post("/auth/sign_in/")
     delete = client.delete("/auth/sign_in/")

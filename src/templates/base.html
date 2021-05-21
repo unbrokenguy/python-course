@@ -10,19 +10,16 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'main.css' %}">
     <script>
-        const server_url = "http://127.0.0.1:8000/";
         Notification.requestPermission(function (permission) {
             console.log('Enable notifications:', permission);
         });
 
         function sendNotification(title, options) {
             if (Notification.permission === "granted") {
-                let notification = new Notification(title, options);
+                var notification = new Notification(title, options);
             } else if (Notification.permission !== 'denied') {
                 Notification.requestPermission(function (permission) {
                 });
-            } else {
-
             }
         }
 
@@ -48,7 +45,14 @@
 
     <ul class="menu__box">
         <li><a class="menu__item" href="/links/">Short link.</a></li>
+        <li><a class="menu__item" href="/links/list/">Send File.</a></li>
+        {% if request.user.is_authenticated == False %}
+        <li><a class="menu__item" href="{% url 'authentication:signIn' %}">Sign In.</a></li>
+        {% endif %}
+        {% if request.user.is_authenticated %}
         <li><a class="menu__item" href="/links/list/">Links list.</a></li>
+        <li><a class="menu__item" href="{% url 'authentication:signOut' %}">Sign Out.</a></li>
+        {% endif %}
     </ul>
   </div>
 <div class="container">

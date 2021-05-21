@@ -5,7 +5,8 @@
         <form action="{% url 'authentication:signIn' %}" method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <input type="submit" value="Sign in">
+            <input type="submit" value="Sign in.">
+            <a href="{% url 'authentication:signUp' %}" class="button">Sign Up.</a>
         </form>
         {% for error in errors %}
             <p style="color:red;">{{ error }}</p>

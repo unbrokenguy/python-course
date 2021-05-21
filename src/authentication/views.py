@@ -1,14 +1,13 @@
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.shortcuts import render, redirect
-from django.contrib.auth import logout, authenticate, login
-from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
-from django.urls import reverse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 from django.views import View
-from authentication.models import send_email
+from core.settings import ALLOWED_HOSTS
 from authentication.forms import LoginForm, RegisterForm
-from authentication.models import User
+from authentication.models import User, send_email
 
 
 class SignUpView(View):
@@ -19,10 +18,10 @@ class SignUpView(View):
     """
 
     def get(self, request, *args, **kwargs):
-        return render(request, "registration.html", {"form": RegisterForm()})
+        return render(request, "authentication/signUp.html", {"form": RegisterForm()})
 
     def post(self, request, *args, **kwargs):
-        form = RegisterForm(request.POST, request.FILES)
+        form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             password = form.cleaned_data.get("password")
@@ -30,18 +29,20 @@ class SignUpView(View):
                 validate_password(password, user)
             except ValidationError as e:
                 form.add_error("password", e)
-                return render(request, "registration.html", {"form": form, "errors": form.errors.values()}, status=400)
+                return render(
+                    request, "authentication/signUp.html", {"form": form, "errors": form.errors.values()}, status=400
+                )
             user.set_password(password)
             user.save()
             send_email(
                 subject="Confirm Email",
-                template="mail.html",
+                template="authentication/mail.html",
                 to_email=user.email,
-                args=dict(code=user.confirmation_code, name=user.first_name),
+                args=dict(code=user.confirmation_code, name=user.first_name, server_url=ALLOWED_HOSTS[0]),
             )
             return redirect(reverse("root"))
         else:
-            return render(request, "registration.html", {"form": form})
+            return render(request, "authentication/signUp.html", {"form": form})
 
 
 class SignInView(View):
@@ -55,7 +56,7 @@ class SignInView(View):
         if request.user.is_authenticated:
             return redirect(reverse("root"))
         form = LoginForm()
-        return render(request, "login.html", {"form": form})
+        return render(request, "authentication/signIn.html", {"form": form})
 
     def post(self, request, *args, **kwargs):
         form = LoginForm(request.POST)
@@ -67,7 +68,7 @@ class SignInView(View):
             else:
                 return render(
                     request,
-                    "login.html",
+                    "authentication/signIn.html",
                     {"form": form, "errors": ["Incorrect login or password or you need to confirm your account"]},
                 )
         else:
@@ -77,15 +78,12 @@ class SignInView(View):
 class ConfirmView(View):
     def get(self, request, *args, **kwargs):
         success = False
-        try:
-            user = User.objects.get(confirmation_code=kwargs["code"])
-            if user.is_confirmed == "NOT_CONFIRMED":
-                user.is_confirmed = "CONFIRMED"
-                user.save()
-                success = True
-        except ValidationError:
-            success = False
-        return render(request, "confirm.html", {"success": success})
+        user = get_object_or_404(User, confirmation_code=kwargs["code"])
+        if user.is_confirmed == "NOT_CONFIRMED":
+            user.is_confirmed = "CONFIRMED"
+            user.save()
+            success = True
+        return render(request, "authentication/confirm.html", {"success": success})
 
 
 @login_required(login_url=reverse_lazy("authentication:signIn"), redirect_field_name=None)

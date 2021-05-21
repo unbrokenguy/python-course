@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block scripts %}
+    <script>
+        function delete_link(element, id) {
+            console.log(get_cookie('csrftoken'));
+            $.ajax({
+                type: 'POST',
+                url: "/links/delete/" + id + "/",
+                headers: {"X-CSRFToken": get_cookie('csrftoken')},
+                success: function () {
+                    element.parentElement.parentElement.remove();
+                },
+                error: function (xhr, errmsg, err) {
+                    sendNotification('Error', {
+                        body: "You can not delete this link.",
+                        dir: 'auto'
+                    });
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="column column-20"><span>Short url.</span></div>
+        <div class="column column-40"><span>Origin url.</span></div>
+        <div class="column column-20"><span>Statistics.</span></div>
+        <div class="column column-20"><span>Delete.</span></div>
+
+    </div>
+    {# TODO style improvement #}
+    {% for link in object_list %}
+        <hr style="border-top: 1px solid #8c8b8b;">
+        <div class="row">
+            <div class="column column-20" style="vertical-align: middle">
+                <a class="button button-outline" href="/{{ link.short_link }}">
+                    <span>
+                    {{ link.short_link }}
+                    </span>
+                </a>
+            </div>
+            <div class="column column-40">
+                <span>{{ link.origin_url }}</span>
+            </div>
+            <div class="column column-20">
+                <a class="button button-outline" href="/links/{{ link.id }}/">
+                    View.
+                </a>
+            </div>
+            <div class="column column-20">
+                <a class="button" href="#" style="background-color: #EE3434;"
+                   onclick="delete_link(this, '{{ link.id }}')"><span style="color: white;">Delete.</span>
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <li>No links yet.</li>
+    {% endfor %}
+    </div>
+{% endblock %}

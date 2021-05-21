@@ -1,14 +1,15 @@
 {% extends "base.html" %}
-{% load mathfilters %}
 {% block scripts %}
     <script>
-        function delete_link(element, short_link) {
+        function delete_link(element, id) {
             console.log(get_cookie('csrftoken'));
             $.ajax({
-                type: 'DELETE',
-                url: server_url + "links/" + short_link + "/",
+                type: 'POST',
+                url: "/links/delete/" + id + "/",
                 headers: {"X-CSRFToken": get_cookie('csrftoken')},
-                success: function () {
+                success: function (response) {
+                    console.log(response)
+                    window.location.replace(response)
                     element.parentElement.parentElement.remove();
                 },
                 error: function (xhr, errmsg, err) {
@@ -21,19 +22,15 @@
         }
     </script>
 {% endblock %}
-
 {% block content %}
+<div>
     <div class="row">
         <div class="column column-20"><span>Short url.</span></div>
-        <div class="column column-40"><span>Origin url.</span></div>
-        <div class="column column-20"><span>Views.</span></div>
+        <div class="column column-60"><span>Origin url.</span></div>
         <div class="column column-20"><span>Delete.</span></div>
-
     </div>
-    {# TODO style improvement #}
-    {% for link in object_list %}
-        <hr style="border-top: 1px solid #8c8b8b;">
-        <div class="row">
+    <hr style="border-top: 1px solid #8c8b8b;">
+    <div class="row">
             <div class="column column-20" style="vertical-align: middle">
                 <a class="button button-outline" href="/{{ link.short_link }}">
                     <span>
@@ -41,20 +38,29 @@
                     </span>
                 </a>
             </div>
-            <div class="column column-40">
+            <div class="column column-60">
                 <span>{{ link.origin_url }}</span>
             </div>
             <div class="column column-20">
-                <span>{{ link.views }}</span>
-            </div>
-            <div class="column column-20">
                 <a class="button" href="#" style="background-color: #EE3434;"
-                   onclick="delete_link(this, '{{ link.short_link }}')"><span style="color: white;">Delete.</span>
+                   onclick="delete_link(this, '{{ link.id }}')"><span style="color: white;">Delete.</span>
                 </a>
             </div>
         </div>
-    {% empty %}
-        <li>No links yet.</li>
-    {% endfor %}
-    </div>
+        <hr style="border-top: 1px solid #8c8b8b;">
+         <div class="row">
+            <div class="column column-20"><span>Date.</span></div>
+            <div class="column column-20"><span>Number of views.</span></div>
+        </div>
+        {% for date, count in views.items %}
+            <div class="row">
+                <div class="column column-20" style="vertical-align: middle">
+                    {{ date }}
+                </div>
+                <div class="column column-20" style="vertical-align: middle">
+                    {{ count }}
+                </div>
+            </div>
+        {% endfor %}
+</div>
 {% endblock %}

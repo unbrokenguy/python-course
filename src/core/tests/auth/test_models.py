@@ -1,8 +1,7 @@
 import pytest
-from authentication.models import User, send_email
 from django.utils.crypto import get_random_string
 
-from core import settings
+from authentication.models import User, send_email
 
 
 @pytest.mark.django_db
@@ -18,9 +17,8 @@ def test_no_username_user_manager():
 def test_send_email_success():
     email = get_random_string() + "@example.com"
     send_email(
-        "Confirm Email",
-        settings.DEFAULT_FROM_EMAIL,
-        email,
-        "mail.html",
+        subject="Confirm Email",
+        to_email=email,
+        template="authentication/mail.html",
         args=dict(code=get_random_string(), name=get_random_string()),
     )
