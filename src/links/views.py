@@ -11,6 +11,7 @@ from django.views.generic import CreateView, DetailView, ListView, RedirectView
 
 from links.forms import LinkForm
 from links.models import Link, generate_short_link
+from stats.utils import views_count_by_date_for_object
 
 
 class LinkListView(LoginRequiredMixin, ListView):
@@ -46,12 +47,12 @@ class LinkRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         """
         GET request
-        url: <server>/<slug:short_link>/
+        url: <server>/<int:pk>/
         Args:
             request: Django Request object.
             *args: Positional args.
-            **kwargs: Keyword args. {"short_url": r"[0-9a-zA-Z+_]{10}"}
-                 short_url: A string with length 10 and in base64 alphabet.
+            **kwargs: Keyword args. {"pk": int"}
+                 pk: Primary Key.
         Redirects to origin url and , or send 404 http error if short_link doesn't exist.
         """
         link = get_object_or_404(Link, short_link=kwargs["short_link"])
@@ -81,7 +82,7 @@ class LinkDeleteView(LoginRequiredMixin, View):
             HttpResponse with status code 200 if deleted successfully or 404
         """
         link = get_object_or_404(Link, id=kwargs["pk"])
-        if link.creator.email == request.user.email:
+        if link.creator.id == request.user.id:
             try:
                 link.delete()
                 return HttpResponse(reverse("links:list"), status=200)
@@ -145,11 +146,5 @@ class LinkDetailView(DetailView):
 
     def get_object(self, queryset=None):
         link = get_object_or_404(Link, creator=self.request.user, id=self.kwargs["pk"])
-        views = link.views.all()
-        views_count_by_date = {}
-        for view in views:
-            if str(view.date) not in views_count_by_date.keys():
-                views_count_by_date[str(view.date)] = 0
-            views_count_by_date[str(view.date)] += 1
-        self.extra_context = {"views": views_count_by_date}
+        self.extra_context = {"views": views_count_by_date_for_object(link)}
         return link

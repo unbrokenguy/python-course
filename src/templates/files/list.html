@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block scripts %}
+    <script>
+        function delete_link(element, id) {
+            console.log(get_cookie('csrftoken'));
+            $.ajax({
+                type: 'POST',
+                url: "/files/delete/" + id + "/",
+                headers: {"X-CSRFToken": get_cookie('csrftoken')},
+                success: function () {
+                    element.parentElement.parentElement.remove();
+                },
+                error: function (xhr, errmsg, err) {
+                    sendNotification('Error', {
+                        body: "You can not delete this link.",
+                        dir: 'auto'
+                    });
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="column column-20"><span>Download link.</span></div>
+        <div class="column column-40"><span>Original file name.</span></div>
+        <div class="column column-20"><span>Statistics.</span></div>
+        <div class="column column-20"><span>Delete.</span></div>
+
+    </div>
+    {# TODO style improvement #}
+    {% for file in object_list %}
+        <hr style="border-top: 1px solid #8c8b8b;">
+        <div class="row">
+            <div class="column column-20" style="vertical-align: middle">
+                <a class="button button-outline" href="/files/download/{{ file.short_url }}/">
+                    <span>
+                    {{ file.short_url }}
+                    </span>
+                </a>
+            </div>
+            <div class="column column-40">
+                <span>{{ file.original_name }}</span>
+            </div>
+            <div class="column column-20">
+                <a class="button button-outline" href="/files/{{ file.id }}/">
+                    View.
+                </a>
+            </div>
+            <div class="column column-20">
+                <a class="button" href="#" style="background-color: #EE3434;"
+                   onclick="delete_link(this, '{{ file.id }}')"><span style="color: white;">Delete.</span>
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <li>No files yet.</li>
+    {% endfor %}
+    </div>
+{% endblock %}

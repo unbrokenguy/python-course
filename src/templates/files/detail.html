@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block scripts %}
     <script>
-        function delete_link(element, id) {
+        function delete_file(element, id) {
             console.log(get_cookie('csrftoken'));
             $.ajax({
                 type: 'POST',
-                url: "/links/delete/" + id + "/",
+                url: "/files/delete/" + id + "/",
                 headers: {"X-CSRFToken": get_cookie('csrftoken')},
                 success: function (response) {
                     console.log(response)
@@ -25,34 +25,37 @@
 {% block content %}
 <div>
     <div class="row">
-        <div class="column column-20"><span>Short url.</span></div>
-        <div class="column column-40"><span>Origin url.</span></div>
-        <div class="column column-20"><span>Expire time.</span></div>
-        <div class="column column-20"><span>Delete.</span></div>
+        <div class="column column-20"><span>Download link.</span></div>
+        <div class="column column-40"><span>Origin file name.</span></div>
+        <div class="column column-10"><span>Expire Time.</span></div>
+        <div class="column column-10"><span>Downloads.</span></div>
+        <div class="column column-10"><span>Delete.</span></div>
     </div>
     <hr style="border-top: 1px solid #8c8b8b;">
     <div class="row">
             <div class="column column-20" style="vertical-align: middle">
-                <a class="button button-outline" href="/{{ link.short_link }}">
+                <a class="button button-outline" href="/{{ file.short_url }}">
                     <span>
-                    {{ link.short_link }}
+                    {{ file.short_url }}
                     </span>
                 </a>
             </div>
             <div class="column column-40">
-                <span>{{ link.origin_url }}</span>
+                <span>{{ file.original_name }}</span>
             </div>
-            <div class="column column-20">
-                {% if link.permanent %}
+            <div class="column column-10">
+                {% if file.permanent == True %}
                     <span>Never.</span>
                 {% else %}
-                    <span>{{ link.expire_time }}</span>
+                    <span>{{ file.expire_time }}</span>
                 {% endif %}
             </div>
-            <div class="c
-            <div class="column column-20">
+            <div class="column column-10">
+                <span>{{ file.downloads }}</span>
+            </div>
+            <div class="column column-10">
                 <a class="button" href="#" style="background-color: #EE3434;"
-                   onclick="delete_link(this, '{{ link.id }}')"><span style="color: white;">Delete.</span>
+                   onclick="delete_file(this, '{{ file.id }}')"><span style="color: white;">Delete.</span>
                 </a>
             </div>
         </div>

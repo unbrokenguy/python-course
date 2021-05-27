@@ -5,9 +5,10 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from core.settings import ALLOWED_HOSTS
+
 from authentication.forms import LoginForm, RegisterForm
 from authentication.models import User, send_email
+from core.settings import ALLOWED_HOSTS
 
 
 class SignUpView(View):

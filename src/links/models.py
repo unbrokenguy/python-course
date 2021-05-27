@@ -39,11 +39,16 @@ class Link(models.Model):
         short_link: A string with short url.
         expire_time: Datetime field when link need to be deleted.
         creator: User who created link.
+        permanent: Boolean if True Link will always be available.
+        views: ManyToMany Field to StatView, (list of views).
     """
 
     origin_url = models.CharField(max_length=2083)
     short_link = models.CharField(max_length=255, unique=True)
+
     expire_time = models.DateTimeField(default=timezone.now)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
     permanent = models.BooleanField(default=False)
+
     views = models.ManyToManyField(StatView)

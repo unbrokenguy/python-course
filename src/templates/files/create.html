@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block scripts %}
+<script>
+    function uploadFile(event) {
+        event.preventDefault();
+        const data = new FormData($('form').get(0));
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: data,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (json) {
+                    console.log(json);
+                    const shot_url = window.location.origin + "/" + json.link;
+                    $('#id_copy').val(shot_url);
+                    const copyText = document.getElementById("id_copy");
+                    copyText.style.display = "block";
+                    copyText.select();
+                    document.execCommand("copy");
+                    // sendNotification('Success', {
+                    //     body: 'Your link copied to your clipboard\n' + shot_url,
+                    //     dir: 'auto'
+                    // });
+                },
+                error: function (xhr, errmsg, err) {
+                    sendNotification('Error', {
+                        body: 'Your url is not correct',
+                        dir: 'auto'
+                    });
+                }
+        });
+    return false;
+    }
+
+    $(function() {
+         $('#file-upload-form').submit(uploadFile);
+    });
+</script>
+{% endblock %}
+{% block content %}
+    <div class="row" style="margin-left: 25%; margin-top: 20%;">
+        <div class="column column-50">
+            <h3>Write any link you want to short!</h3>
+        </div>
+    </div>
+    <form action="/files/" method="post" id="file-upload-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="row" style="margin-left: 25%;">
+                <div class="column column-50">
+                    {{ field.errors }}
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+                {% for error in errors %}
+            <p style="color:red;">{{ error }}</p>
+        {% endfor %}
+        <div class="row" style="margin-left: 25%;">
+            <div class="column column-50">
+                <button class="button button-outline" type="submit" id="upload-btn" style=" width: 100%;">Send file.</button>
+            </div>
+        </div>
+    </form>
+    <div class="row" style="margin-left: 25%; padding-top: 10px;">
+        <div class="column column-50">
+            <input id="id_copy" type="text" value="" style="display: none" readonly>
+        </div>
+    </div>
+{% endblock %}
