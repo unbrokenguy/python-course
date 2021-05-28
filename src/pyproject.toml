@@ -15,8 +15,13 @@ factory-boy = "^3.2.0"
 pytest-django = "^4.1.0"
 gunicorn = "^20.0.4"
 django-mathfilters = "^1.0.0"
+celery = "<5.0.0"
+redis = "^3.5.3"
+django-celery-beat = "^2.2.0"
+
 
 [tool.poetry.dev-dependencies]
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

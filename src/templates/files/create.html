@@ -70,6 +70,11 @@
     </form>
     <div class="row" style="margin-left: 25%; padding-top: 10px;">
         <div class="column column-50">
+            {% if request.user.is_authenticated == False %}
+            <blockquote>
+                  <p><em>You are not signed in, so the file will be one off.</em></p>
+            </blockquote>
+            {% endif %}
             <input id="id_copy" type="text" value="" style="display: none" readonly>
         </div>
     </div>

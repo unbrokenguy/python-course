@@ -22,6 +22,7 @@ def generate_hash_salt(length: int = 50) -> str:
 
 
 def generate_short_link(origin_url):
+    # TODO Collision avoid
     hash_salt = generate_hash_salt()  # generate hash salt
     hash_func = sha256()  # hashing algorithm
     hash_func.update((origin_url + hash_salt).encode("utf-8"))  # hash url with salt

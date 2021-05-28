@@ -26,6 +26,8 @@ class Attachment(models.Model):
     """
 
     file = models.FileField(upload_to=file_upload, null=False)
+    file_exist = models.BooleanField(default=True)
+
     original_name = models.CharField(max_length=255)
 
     short_url = models.CharField(max_length=255, unique=True)

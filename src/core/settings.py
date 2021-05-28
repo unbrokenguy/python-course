@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "celery",
+    "django_celery_beat",
     "mathfilters",
     "authentication",
     "stats",
@@ -146,3 +148,8 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST")
 DEFAULT_TO_EMAIL = "to email"
 path = "default"
+
+
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_BEAT_SCHEDULER = "django"
+CELERY_TIMEZONE = "Europe/Moscow"

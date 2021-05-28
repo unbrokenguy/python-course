@@ -44,9 +44,3 @@ class User(AbstractUser):
     is_confirmed = models.CharField(
         max_length=255, choices=ConfirmStateEnum.choices, default=ConfirmStateEnum.NOT_CONFIRMED
     )
-
-
-def send_email(subject, to_email, template, args, from_email=settings.DEFAULT_FROM_EMAIL):
-
-    html_message = render_to_string(template, args)
-    send_mail(subject=subject, message="", from_email=from_email, recipient_list=[to_email], html_message=html_message)

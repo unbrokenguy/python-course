@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView
 
-from core.settings import ALLOWED_HOSTS, MEDIA_ROOT
+from django.conf import settings
 from files.forms import AttachmentForm
 from files.models import Attachment
 from links.models import Link, generate_short_link
@@ -36,10 +36,11 @@ class AttachmentDownloadView(View):
         attachment = get_object_or_404(Attachment, short_url=kwargs.get("short_url"))
 
         # if attachment is not permanent and expired return 404
-        if attachment.permanent is False and attachment.expire_time < timezone.now():
-            return Http404
+        if attachment.permanent is False and attachment.expire_time < timezone.now() and attachment.file_exist is False:
 
-        file, file_name = open(f"{MEDIA_ROOT}/{attachment.file}", "rb"), attachment.original_name
+            raise Http404
+
+        file, file_name = open(f"{settings.MEDIA_ROOT}/{attachment.file}", "rb"), attachment.original_name
 
         # We need to define headers so attachment will be download with its original name
         # If we use FileResponse file name will be uuid4
@@ -52,7 +53,9 @@ class AttachmentDownloadView(View):
         )
 
         if attachment.one_off:  # If attachment is one off we need to delete it.
+            link = Link.objects.get(short_link=attachment.short_url)
             attachment.delete()
+            link.delete()
         else:  # If attachment is not one off we need to collect statistics
             attachment.views.create(date=timezone.now().date())
             attachment.downloads = F("downloads") + 1
@@ -107,6 +110,8 @@ class AttachmentDeleteView(LoginRequiredMixin, View):
         file = get_object_or_404(Attachment, id=kwargs["pk"])
         if file.creator.id == request.user.id:
             try:
+                link = Link.objects.get(short_link=file.short_url)
+                link.delete()
                 file.delete()
                 return HttpResponse(reverse("files:list"), status=200)
             except ProtectedError:
@@ -148,19 +153,21 @@ class AttachmentCreateView(CreateView):
         if form.is_valid():
             file = Attachment(file=form.cleaned_data["file"], original_name=form.cleaned_data["file"].name)
 
-            url = f"https://{ALLOWED_HOSTS[0]}/files/download/"
+            url = f"https://{settings.ALLOWED_HOSTS[0]}/files/download/"
             short_url = generate_short_link(url + file.original_name)
             url = url + short_url + "/"
 
             file.short_url = short_url
             link = Link(permanent=True, origin_url=url, short_link=short_url)
 
+            expire_time = -1
             if request.user.is_authenticated:
                 file.creator = request.user
+                expire_time = int(form.cleaned_data["expire_time"])
 
-            expire_time = int(form.cleaned_data["expire_time"])
             if expire_time == -1:
                 file.one_off = True
+                file.permanent = True
             elif expire_time == 0:
                 file.permanent = True
             else:

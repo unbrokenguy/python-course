@@ -34,11 +34,15 @@
         <hr style="border-top: 1px solid #8c8b8b;">
         <div class="row">
             <div class="column column-20" style="vertical-align: middle">
-                <a class="button button-outline" href="/files/download/{{ file.short_url }}/">
-                    <span>
-                    {{ file.short_url }}
-                    </span>
-                </a>
+                {% if file.file_exist == False %}
+                        <span>File is no longer available.</span>
+                {% else %}
+                    <a class="button button-outline" href="/{{ file.short_url }}">
+                        <span>
+                            {{ file.short_url }}
+                        </span>
+                    </a>
+                {% endif %}
             </div>
             <div class="column column-40">
                 <span>{{ file.original_name }}</span>

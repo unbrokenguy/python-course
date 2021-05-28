@@ -27,7 +27,8 @@
     <div class="row">
         <div class="column column-20"><span>Short url.</span></div>
         <div class="column column-40"><span>Origin url.</span></div>
-        <div class="column column-20"><span>Expire time.</span></div>
+        <div class="column column-10"><span>Expire time.</span></div>
+        <div class="column column-10"><span>Views.</span></div>
         <div class="column column-20"><span>Delete.</span></div>
     </div>
     <hr style="border-top: 1px solid #8c8b8b;">
@@ -40,16 +41,18 @@
                 </a>
             </div>
             <div class="column column-40">
-                <span>{{ link.origin_url }}</span>
+                <p>{{ link.origin_url }}</p>
             </div>
-            <div class="column column-20">
+            <div class="column column-10">
                 {% if link.permanent %}
                     <span>Never.</span>
                 {% else %}
                     <span>{{ link.expire_time }}</span>
                 {% endif %}
             </div>
-            <div class="c
+            <div class="column column-10">
+                <span>{{ summary }}</span>
+            </div>
             <div class="column column-20">
                 <a class="button" href="#" style="background-color: #EE3434;"
                    onclick="delete_link(this, '{{ link.id }}')"><span style="color: white;">Delete.</span>

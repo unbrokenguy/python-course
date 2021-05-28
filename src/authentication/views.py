@@ -3,11 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.views import View
 
 from authentication.forms import LoginForm, RegisterForm
-from authentication.models import User, send_email
+from authentication.models import User
+from authentication.tasks import send_email
 from core.settings import ALLOWED_HOSTS
 
 
@@ -35,12 +37,16 @@ class SignUpView(View):
                 )
             user.set_password(password)
             user.save()
-            send_email(
-                subject="Confirm Email",
-                template="authentication/mail.html",
-                to_email=user.email,
-                args=dict(code=user.confirmation_code, name=user.first_name, server_url=ALLOWED_HOSTS[0]),
+            html_message = render_to_string(
+                template_name="authentication/mail.html",
+                context=dict(code=user.confirmation_code, name=user.first_name, server_url=ALLOWED_HOSTS[0]),
             )
+            send_email.delay(
+                subject="Confirm Email",
+                html_message=html_message,
+                recipient_list=[user.email],
+            )
+
             return redirect(reverse("root"))
         else:
             return render(request, "authentication/signUp.html", {"form": form})

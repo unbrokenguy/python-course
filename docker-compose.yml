@@ -4,19 +4,35 @@ services:
   web:
     build: ./src
     restart: on-failure
-    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
-        - 8282:8000
-    environment:
-      DEBUG: 0
-      ALLOWED_HOST: "${ALLOWED_HOST}"
+      - 8282:8000
+    environment: &env
+      DEBUG: 1
       SECRET_KEY: "${SECRET_KEY}"
+      EMAIL_HOST: "${EMAIL_HOST}"
+      EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
+      CELERY_BROKER_URL: "redis://redis:6379"
     volumes:
-    - static_volume:/usr/src/app/static
-    - media_volume:/usr/src/app/media
+      - static_volume:/usr/src/app/static
+      - media_volume:/usr/src/app/media
+
+  redis:
+    restart: on-failure
+    image: redis:6.0.10
+
+  celery:
+    restart: on-failure
+    build: ./src
+    command: celery -A core worker -B -l INFO
+    depends_on:
+      - redis
+      - web
+    environment:
+      <<: *env
+
+
 
 volumes:
   static_volume:
   media_volume:
-
-

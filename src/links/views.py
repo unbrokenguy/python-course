@@ -146,5 +146,6 @@ class LinkDetailView(DetailView):
 
     def get_object(self, queryset=None):
         link = get_object_or_404(Link, creator=self.request.user, id=self.kwargs["pk"])
-        self.extra_context = {"views": views_count_by_date_for_object(link)}
+        views = views_count_by_date_for_object(link)
+        self.extra_context = {"views": views, "summary": sum(views.values())}
         return link
