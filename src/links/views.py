@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import ProtectedError
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -23,7 +22,7 @@ class LinkListView(LoginRequiredMixin, ListView):
     """
 
     login_url = "/auth/sign_in/"
-    redirect_field_name = "redirect_to"
+    redirect_field_name = None
     model = Link
     template_name = "links/list.html"
 
@@ -57,8 +56,9 @@ class LinkRedirectView(RedirectView):
         """
         link = get_object_or_404(Link, short_link=kwargs["short_link"])
         if link.permanent or link.expire_time >= timezone.now():
-            link.views.create(date=timezone.now().date())
-            link.save()
+            if link.creator:
+                link.views.create(date=timezone.now().date())
+                link.save()
             return link.origin_url
         raise Http404
 
@@ -66,7 +66,7 @@ class LinkRedirectView(RedirectView):
 class LinkDeleteView(LoginRequiredMixin, View):
 
     login_url = "/auth/sign_in/"
-    redirect_field_name = "redirect_to"
+    redirect_field_name = None
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
@@ -83,11 +83,8 @@ class LinkDeleteView(LoginRequiredMixin, View):
         """
         link = get_object_or_404(Link, id=kwargs["pk"])
         if link.creator.id == request.user.id:
-            try:
-                link.delete()
-                return HttpResponse(reverse("links:list"), status=200)
-            except ProtectedError:
-                return HttpResponse("Link can't be deleted.", status=400)
+            link.delete()
+            return HttpResponse(reverse("links:list"), status=200)
         else:
             return HttpResponse(status=403)
 
@@ -128,7 +125,7 @@ class LinkCreateView(CreateView):
             link = Link.objects.create(origin_url=_url, short_link=_short_link)
             if _expire_time == 0:
                 link.permanent = True
-            elif _expire_time == 1 or _expire_time == 7:
+            else:
                 link.expire_time = timezone.now() + timedelta(days=_expire_time)
             if request.user.is_authenticated:
                 link.creator = request.user  # if user is authenticated add creator to link
@@ -139,8 +136,12 @@ class LinkCreateView(CreateView):
         return JsonResponse(data)
 
 
-class LinkDetailView(DetailView):
+class LinkDetailView(LoginRequiredMixin, DetailView):
     model = Link
+
+    login_url = "/auth/sign_in/"
+    redirect_field_name = None
+
     context_object_name = "link"
     template_name = "links/detail.html"
 

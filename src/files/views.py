@@ -2,7 +2,7 @@ import mimetypes
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import F, ProtectedError
+from django.db.models import F
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -34,12 +34,11 @@ class AttachmentDownloadView(View):
             FileResponse with file if file exist successfully or 404
         """
         attachment = get_object_or_404(Attachment, short_url=kwargs.get("short_url"))
-
-        # if attachment is not permanent and expired return 404
-        if attachment.permanent is False and attachment.expire_time < timezone.now() and attachment.file_exist is False:
-
+        if attachment.file_exist is False:
             raise Http404
-
+        if attachment.permanent is False and timezone.now() > attachment.expire_time:
+            raise Http404
+        # if attachment is not permanent and expired return 404
         file, file_name = open(f"{settings.MEDIA_ROOT}/{attachment.file}", "rb"), attachment.original_name
 
         # We need to define headers so attachment will be download with its original name
@@ -50,12 +49,11 @@ class AttachmentDownloadView(View):
                 "Content-Type": mimetypes.guess_type(file_name)[0],
                 "Content-Disposition": f'attachment; filename="{file_name}"',
             },
+            status=200,
         )
 
         if attachment.one_off:  # If attachment is one off we need to delete it.
-            link = Link.objects.get(short_link=attachment.short_url)
             attachment.delete()
-            link.delete()
         else:  # If attachment is not one off we need to collect statistics
             attachment.views.create(date=timezone.now().date())
             attachment.downloads = F("downloads") + 1
@@ -73,7 +71,7 @@ class AttachmentListView(LoginRequiredMixin, ListView):
     """
 
     login_url = "/auth/sign_in/"
-    redirect_field_name = "redirect_to"
+    redirect_field_name = None
     model = Attachment
     template_name = "files/list.html"
 
@@ -92,7 +90,7 @@ class AttachmentListView(LoginRequiredMixin, ListView):
 class AttachmentDeleteView(LoginRequiredMixin, View):
 
     login_url = "/auth/sign_in/"
-    redirect_field_name = "redirect_to"
+    redirect_field_name = None
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
@@ -109,13 +107,8 @@ class AttachmentDeleteView(LoginRequiredMixin, View):
         """
         file = get_object_or_404(Attachment, id=kwargs["pk"])
         if file.creator.id == request.user.id:
-            try:
-                link = Link.objects.get(short_link=file.short_url)
-                link.delete()
-                file.delete()
-                return HttpResponse(reverse("files:list"), status=200)
-            except ProtectedError:
-                return HttpResponse("File can't be deleted.", status=400)
+            file.delete()
+            return HttpResponse(reverse("files:list"), status=200)
         else:
             return HttpResponse(status=403)
 
@@ -182,8 +175,10 @@ class AttachmentCreateView(CreateView):
         return JsonResponse(data)
 
 
-class AttachmentDetailView(DetailView):
+class AttachmentDetailView(LoginRequiredMixin, DetailView):
     model = Attachment
+    login_url = "/auth/sign_in/"
+    redirect_field_name = None
     context_object_name = "file"
     template_name = "files/detail.html"
 

@@ -20,4 +20,4 @@ class AttachmentForm(forms.Form):
     """
 
     file = forms.FileField(required=True)
-    expire_time = forms.ChoiceField(widget=forms.Select(), choices=CHOICES)
+    expire_time = forms.ChoiceField(widget=forms.Select(), choices=CHOICES, validators=[day_validator])

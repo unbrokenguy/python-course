@@ -90,4 +90,16 @@ def test_confirm_success(client):
     user.save()
     response = client.get(f"/auth/confirm/{user.confirmation_code}")
     assert response.status_code == 200
+    assert "Your account confirm successful" in response.content.decode("utf-8")
     assert User.objects.get(confirmation_code=user.confirmation_code).is_confirmed == "CONFIRMED"
+
+
+@pytest.mark.django_db
+def test_confirm_fail(client):
+    user = UserFactory.create()
+    user.set_password(get_random_string())
+    user.is_confirmed = "CONFIRMED"
+    user.save()
+    response = client.get(f"/auth/confirm/{user.confirmation_code}")
+    assert response.status_code == 200
+    assert "Wrong confirmation code" in response.content.decode("utf-8")

@@ -3,12 +3,15 @@ name: coverage
 on: [push]
 
 jobs:
-  run-linters:
+  run-tests:
     name: Setup
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
+
+      - name: Start containers
+        run: docker-compose -f docker-compose.test.yml up -d --build
 
       - name: Set up Python
         uses: actions/setup-python@v1
@@ -17,6 +20,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          docker ps -a
           cd src
           python -m pip install --upgrade pip
           pip install poetry
@@ -24,6 +28,9 @@ jobs:
           pip install -r requirements.txt
       - name: Coverage
         env:
+          EMAIL_HOST: ${{secrets.EMAIL_HOST}}
+          EMAIL_HOST_PASSWORD: ${{secrets.EMAIL_HOST_PASSWORD}}
+          CELERY_BROKER_URL: "redis://127.0.0.1:6379/0"
           SECRET_KEY: ${{secrets.SECRET_KEY}}
         run: |
           cd src
@@ -34,3 +41,7 @@ jobs:
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           fail_ci_if_error: true
+
+      - name: Stop containers
+        if: always()
+        run: docker-compose -f docker-compose.test.yml down

@@ -4,11 +4,12 @@ services:
   web:
     build: ./src
     restart: on-failure
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
     ports:
       - 8282:8000
     environment: &env
-      DEBUG: 1
+      DEBUG: 0
+      ALLOWED_HOST: "${ALLOWED_HOST}"
       SECRET_KEY: "${SECRET_KEY}"
       EMAIL_HOST: "${EMAIL_HOST}"
       EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"

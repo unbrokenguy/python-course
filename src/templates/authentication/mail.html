@@ -6,6 +6,6 @@
 </head>
 <body>
     <h2>{{ name }}</h2>
-    <a href="{{ server_url }}/{% url 'authentication:confirm' code %}">Confirm</a>
+    <a href="{{ server_url }}{% url 'authentication:confirm' code %}">Confirm</a>
 </body>
 </html>

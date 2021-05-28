@@ -1,0 +1,23 @@
+version: '3.2'
+
+services:
+
+  redis:
+    restart: on-failure
+    image: redis:6.0.10
+    ports:
+      - 6379:6379
+
+  celery:
+    restart: on-failure
+    build: ./src
+    command: celery -A core worker -B -l INFO
+    depends_on:
+      - redis
+    environment:
+      DEBUG: 0
+      ALLOWED_HOST: "${ALLOWED_HOST}"
+      SECRET_KEY: "${SECRET_KEY}"
+      EMAIL_HOST: "${EMAIL_HOST}"
+      EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
+      CELERY_BROKER_URL: "redis://redis:6379"

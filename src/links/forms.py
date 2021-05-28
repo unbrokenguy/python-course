@@ -19,4 +19,4 @@ class LinkForm(forms.Form):
     """
 
     url = forms.CharField(widget=forms.URLInput, required=True)
-    expire_time = forms.ChoiceField(widget=forms.Select(), choices=CHOICES)
+    expire_time = forms.ChoiceField(widget=forms.Select(), choices=CHOICES, validators=[day_validator])

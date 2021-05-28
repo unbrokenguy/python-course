@@ -1,9 +1,13 @@
+import os
 import uuid
 
+from django.conf import settings
 from django.db import models
+from django.dispatch import receiver
 from django.utils import timezone
 
 from authentication.models import User
+from links.models import Link
 from stats.models import StatView
 
 
@@ -40,3 +44,12 @@ class Attachment(models.Model):
 
     views = models.ManyToManyField(StatView)
     downloads = models.IntegerField(default=0)
+
+
+@receiver(models.signals.post_delete, sender=Attachment)
+def auto_delete_file_on_attachment_delete(sender, instance, **kwargs):
+    if instance.file_exist:
+        path = f"{settings.MEDIA_ROOT}/{instance.file}"
+        os.remove(path)
+        link = Link.objects.get(short_link=instance.short_url)
+        link.delete()
