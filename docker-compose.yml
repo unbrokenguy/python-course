@@ -1,6 +1,17 @@
 version: '3.2'
 
 services:
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+        - 5433:5433
+    environment:
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "{$DB_NAME}"
+    command: -p 5433
   web:
     build: ./src
     restart: on-failure
@@ -14,9 +25,16 @@ services:
       EMAIL_HOST: "${EMAIL_HOST}"
       EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
       CELERY_BROKER_URL: "redis://redis:6379"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${DB_NAME}"
+      DB_PORT: "5433"
+      DB_HOST: "db"
     volumes:
       - static_volume:/usr/src/app/static
       - media_volume:/usr/src/app/media
+    depends_on:
+      - db
 
   redis:
     restart: on-failure
@@ -26,14 +44,15 @@ services:
     restart: on-failure
     build: ./src
     command: celery -A core worker -B -l INFO
+    environment:
+      <<: *env
     depends_on:
       - redis
       - web
-    environment:
-      <<: *env
-
+      - db
 
 
 volumes:
+  postgres_data:
   static_volume:
   media_volume:

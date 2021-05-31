@@ -13,11 +13,9 @@ Service for shortening links and file sharing, with the ability to register to t
 ## Installation
 
 ### Install python version 3.7 or higher 
-### Use docker and docker-compose
+### Install docker and docker-compose
 
 ## Setup
-
-### Spawn a shell within the virtual environment
 
 ### Start current server
 #### Add environments
@@ -27,12 +25,12 @@ Service for shortening links and file sharing, with the ability to register to t
 * EMAIL_HOST_PASSWORD: Email password.
 #### Run tests
 ```shell
+export CELERY_BROKER_URL="redis://127.0.0.1:6379"
 docker-compose -f docker-compose.test.yml -d --build
 cd src
 coverage run -m pytest
 coverage report --rcfile=.coveragerc
 docker-compose -f docker-compose.test.yml down
-
 ```
 #### Start server
 ```shell

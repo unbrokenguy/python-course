@@ -46,12 +46,12 @@ class LinkRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         """
         GET request
-        url: <server>/<int:pk>/
+        url: <server>/<slug:short_link>/
         Args:
             request: Django Request object.
             *args: Positional args.
-            **kwargs: Keyword args. {"pk": int"}
-                 pk: Primary Key.
+            **kwargs: Keyword args. {"short_link": r"[0-9a-zA-Z_-]{10}"}
+                 short_link: A string with length 10 and in base64 alphabet.
         Redirects to origin url and , or send 404 http error if short_link doesn't exist.
         """
         link = get_object_or_404(Link, short_link=kwargs["short_link"])
@@ -72,12 +72,12 @@ class LinkDeleteView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         """
         POST request
-        url: <server>/links/<slug:short_url/
+        url: <server>/links/<int:pk>/
         Args:
             request: Django Request object.
             *args: Positional args.
-            **kwargs: Keyword args. {"short_url": r"[0-9a-zA-Z+_]{10}"}
-                short_url: A string with length 10 and in base64 alphabet.
+            **kwargs: Keyword args. {"pk": Integer"}
+                pk: Primary key.
         Returns:
             HttpResponse with status code 200 if deleted successfully or 404
         """
@@ -111,9 +111,9 @@ class LinkCreateView(CreateView):
         POST request to create short link.
         url: <server>/links/
         Args:
-            request:
-            *args:
-            **kwargs:
+            request: Django Request object with LinkForm data.
+            *args: Positional args.
+            **kwargs: Keyword args.
         Returns:
             JsonResponse with link if no errors occurred else message with error
         """

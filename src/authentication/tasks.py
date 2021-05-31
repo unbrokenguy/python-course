@@ -3,10 +3,10 @@ from __future__ import absolute_import, unicode_literals
 from django.conf import settings
 from django.core.mail import send_mail
 
-from celery import shared_task
+from core.celery import app
 
 
-@shared_task
+@app.task
 def send_email(subject, html_message, recipient_list):
     send_mail(
         subject=subject,

@@ -16,6 +16,7 @@ services:
       - redis
     environment:
       DEBUG: 0
+      TEST: 1
       ALLOWED_HOST: "${ALLOWED_HOST}"
       SECRET_KEY: "${SECRET_KEY}"
       EMAIL_HOST: "${EMAIL_HOST}"

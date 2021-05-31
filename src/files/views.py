@@ -135,9 +135,9 @@ class AttachmentCreateView(CreateView):
         POST request to create file.
         url: <server>/files/
         Args:
-            request:
-            *args:
-            **kwargs:
+            request: Django Request object with AttachmentForm data and Files.
+            *args: Positional args.
+            **kwargs: Keyword args.
         Returns:
             JsonResponse with link if no errors occurred else message with error
         """
