@@ -11,7 +11,7 @@ from django.utils.crypto import get_random_string
 from core.tests.files.test_tasks import random_picture
 from core.tests.user_factory import UserFactory
 from files.models import Attachment
-from links.models import generate_short_link, Link
+from links.models import Link, generate_short_link
 
 
 @pytest.fixture
@@ -49,7 +49,10 @@ def test_attachment_anonymous_delete_view(client):
 def test_attachment_user_delete_view(client, user):
     file = random_picture()
     attachment = Attachment(
-        file=file, original_name=file.name, expire_time=timezone.now() + timedelta(days=7), creator=user
+        file=file,
+        original_name=file.name,
+        expire_time=timezone.now() + timedelta(days=7),
+        creator=user,
     )
 
     url = f"https://{settings.ALLOWED_HOSTS[0]}/files/download/"
@@ -122,7 +125,11 @@ def test_files_post_user_create_view_fail(client, user):
 
     one_week = client.post(
         "/files/",
-        {"random_parameter": get_random_string(), "second_random_parameter": get_random_string(), "expire_time": 7},
+        {
+            "random_parameter": get_random_string(),
+            "second_random_parameter": get_random_string(),
+            "expire_time": 7,
+        },
     )
     assert one_week.status_code == 200
     assert json.loads(one_week.content.decode("utf-8")).get("error")
@@ -148,7 +155,11 @@ def test_files_user_download_view(client, user, expire_time):
 
     short_url = json.loads(
         client.post(
-            "/files/", {"file": random_picture(), "expire_time": 0 if expire_time == "file_deleted" else expire_time}
+            "/files/",
+            {
+                "file": random_picture(),
+                "expire_time": 0 if expire_time == "file_deleted" else expire_time,
+            },
         ).content.decode("utf-8")
     )["link"]
 

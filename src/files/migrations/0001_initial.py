@@ -21,18 +21,31 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Attachment",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("file", models.FileField(upload_to=files.models.file_upload)),
                 ("original_name", models.CharField(max_length=255)),
                 ("short_url", models.CharField(max_length=255, unique=True)),
-                ("expire_time", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "expire_time",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
                 ("permanent", models.BooleanField(default=False)),
                 ("one_off", models.BooleanField(default=False)),
                 ("downloads", models.IntegerField(default=0)),
                 (
                     "creator",
                     models.ForeignKey(
-                        null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
                 ("views", models.ManyToManyField(to="stats.StatView")),

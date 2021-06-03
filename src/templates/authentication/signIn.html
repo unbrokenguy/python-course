@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Title{% endblock %}
+{% block title %}Sign in.{% endblock %}
 {% block content %}
     <div class="container">
         <form action="{% url 'authentication:signIn' %}" method="post">
@@ -7,9 +7,7 @@
             {{ form.as_p }}
             <input type="submit" value="Sign in.">
             <a href="{% url 'authentication:signUp' %}" class="button">Sign Up.</a>
+            <a class="button" href="{% url 'authentication:forgot' %}">Forgot your password?</a>
         </form>
-        {% for error in errors %}
-            <p style="color:red;">{{ error }}</p>
-        {% endfor %}
     </div>
 {% endblock %}

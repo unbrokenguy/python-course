@@ -15,6 +15,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="user",
             name="confirmation_code",
-            field=models.UUIDField(default=uuid.UUID("34078470-903e-4ce6-ac66-bfa52724a16a"), editable=False),
+            field=models.UUIDField(
+                default=uuid.UUID("34078470-903e-4ce6-ac66-bfa52724a16a"),
+                editable=False,
+            ),
         ),
     ]

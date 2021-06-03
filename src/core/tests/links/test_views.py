@@ -47,7 +47,10 @@ def test_link_redirect_view_fail(client):
 
 @pytest.mark.django_db
 def test_link_redirect_view_expire_time_fail(client):
-    link = Link.objects.create(origin_url="https://google.com/", short_link=generate_short_link("https://google.com/"))
+    link = Link.objects.create(
+        origin_url="https://google.com/",
+        short_link=generate_short_link("https://google.com/"),
+    )
     link.expire_time = timezone.now() + timedelta(days=-7)
     link.save()
     response = client.get(f"/{link.short_link}/")

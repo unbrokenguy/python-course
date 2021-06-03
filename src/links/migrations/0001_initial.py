@@ -19,14 +19,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Link",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("origin_url", models.CharField(max_length=2083)),
                 ("short_link", models.CharField(max_length=255, unique=True)),
-                ("expire_time", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "expire_time",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
                 (
                     "creator",
                     models.ForeignKey(
-                        null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
                 ("views", models.ManyToManyField(null=True, to="stats.StatView")),

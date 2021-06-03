@@ -1,7 +1,8 @@
 import pytest
+from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
-from django.conf import settings
+
 from authentication.models import User
 from authentication.tasks import send_email
 
@@ -20,7 +21,11 @@ def test_send_email_success():
     email = get_random_string() + "@example.com"
     html_message = render_to_string(
         template_name="authentication/mail.html",
-        context=dict(code=get_random_string(), name=get_random_string(), server_url=settings.ALLOWED_HOSTS[0]),
+        context=dict(
+            code=get_random_string(),
+            name=get_random_string(),
+            server_url=settings.ALLOWED_HOSTS[0],
+        ),
     )
     send_email.delay(
         subject="Confirm Email",

@@ -5,30 +5,6 @@ from django.utils.crypto import get_random_string
 from authentication.models import User
 from core.tests.user_factory import UserFactory
 
-bad_passwords = [
-    "12345",
-    "987654321",
-    "qwertyuiop",
-    "same_as_email",
-]
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize("password", bad_passwords)
-def test_sign_up_fail(client, password):
-    email = "example@gmail.com"
-    response = client.post(
-        "/auth/sign_up/",
-        {
-            "first_name": get_random_string(),
-            "last_name": get_random_string(),
-            "email": email,
-            "password": email if password == "same_as_email" else password,
-            "confirm_password": email if password == "same_as_email" else password,
-        },
-    )
-    assert response.status_code == 400
-
 
 @pytest.mark.django_db
 def test_sign_up_success(client):
@@ -57,7 +33,7 @@ def test_sign_up_fail(client):
             "email": get_random_string() + "@example.com",
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 400
 
 
 @pytest.mark.django_db
@@ -67,8 +43,7 @@ def test_sign_in_fail(client):
         "/auth/sign_in/",
         {"email": user.email, "password": password},
     )
-    assert response.status_code == 200
-    assert "Incorrect login or password or you need to confirm your account" in response.content.decode("utf-8")
+    assert response.status_code == 400
 
 
 @pytest.mark.django_db

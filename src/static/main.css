@@ -1,4 +1,6 @@
-
+#errorlist {
+  color: red;
+}
 #menu__toggle {
   opacity: 0;
 }

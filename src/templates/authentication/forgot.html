@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Sign in.{% endblock %}
+{% block content %}
+    <div class="container">
+        {% if status %}
+               <h2>{{ status }}</h2>
+        {% else %}
+            <form action="{% url 'authentication:forgot' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Send email.">
+            </form>
+        {{ form.errors }}
+        {% endif %}
+    </div>
+{% endblock %}

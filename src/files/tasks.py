@@ -1,7 +1,7 @@
 import os
 
-from django.utils import timezone
 from django.conf import settings
+from django.utils import timezone
 
 from core.celery import app
 from files.models import Attachment

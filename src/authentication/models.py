@@ -28,6 +28,13 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
     objects = NoUserNameUserManager()
 
+    confirmation_code = models.UUIDField(default=uuid.uuid4(), editable=False)
+    is_confirmed = models.CharField(
+        max_length=255,
+        choices=ConfirmStateEnum.choices,
+        default=ConfirmStateEnum.NOT_CONFIRMED,
+    )
+
     def save(self, *args, **kwargs):
         if not self.pk:
             self.username = self.email
@@ -35,8 +42,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
-
-    confirmation_code = models.UUIDField(default=uuid.uuid4(), editable=False)
-    is_confirmed = models.CharField(
-        max_length=255, choices=ConfirmStateEnum.choices, default=ConfirmStateEnum.NOT_CONFIRMED
-    )

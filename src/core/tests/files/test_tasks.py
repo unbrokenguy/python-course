@@ -4,16 +4,16 @@ from io import BytesIO
 from random import randint
 
 import pytest
-from PIL import Image
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from PIL import Image
 
 from files.models import Attachment
 from files.tasks import delete_expired_files
-from links.models import generate_short_link, Link
+from links.models import Link, generate_short_link
 
 
 def random_picture():
@@ -33,7 +33,9 @@ def test_delete_expired_files():
 
     pic_to_delete = random_picture()
     file_to_delete = Attachment(
-        file=pic_to_delete, original_name=pic_to_delete.name, expire_time=timezone.now() + timedelta(days=-7)
+        file=pic_to_delete,
+        original_name=pic_to_delete.name,
+        expire_time=timezone.now() + timedelta(days=-7),
     )
 
     file_path_to_delete = file_to_delete.file
@@ -48,7 +50,9 @@ def test_delete_expired_files():
 
     pic_not_to_delete = random_picture()
     file_not_to_delete = Attachment(
-        file=pic_not_to_delete, original_name=pic_not_to_delete.name, expire_time=timezone.now() + timedelta(days=7)
+        file=pic_not_to_delete,
+        original_name=pic_not_to_delete.name,
+        expire_time=timezone.now() + timedelta(days=7),
     )
 
     short_url = generate_short_link(url + file_not_to_delete.original_name)

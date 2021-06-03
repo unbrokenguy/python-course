@@ -1,8 +1,8 @@
 from datetime import timedelta
 
 import pytest
-from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 from core.tests.user_factory import UserFactory
@@ -12,10 +12,15 @@ from links.tasks import delete_expired_anonymous_links
 
 @pytest.mark.django_db
 def test_delete_expired_anonymous_links_success():
-    link = Link.objects.create(origin_url="https://google.com/", short_link=generate_short_link("https://google.com/"))
+    link = Link.objects.create(
+        origin_url="https://google.com/",
+        short_link=generate_short_link("https://google.com/"),
+    )
 
     permanent = Link.objects.create(
-        origin_url="https://google.com/", short_link=generate_short_link("https://google.com/"), permanent=True
+        origin_url="https://google.com/",
+        short_link=generate_short_link("https://google.com/"),
+        permanent=True,
     )
     not_expired = Link.objects.create(
         origin_url="https://google.com/",
@@ -38,7 +43,9 @@ def test_delete_expired_user_links_fail(client):
     user.save()
     client.force_login(user)
     link = Link.objects.create(
-        origin_url="https://google.com/", short_link=generate_short_link("https://google.com/"), creator=user
+        origin_url="https://google.com/",
+        short_link=generate_short_link("https://google.com/"),
+        creator=user,
     )
     link.expire_time = timezone.now() + timedelta(days=-7)
     link.save()
